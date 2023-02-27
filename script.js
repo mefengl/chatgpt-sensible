@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatgpt sensible
 // @namespace    https://github.com/mefengl
-// @version      0.0.1
+// @version      0.0.2
 // @description  sensible to me
 // @author       mefengl
 // @match        https://chat.openai.com/chat
@@ -13,6 +13,7 @@
 (function() {
     'use strict';
     $(document).ready(function() {
-        $('nav a:first').appendTo('form div:first');
+        const $new_button = $('nav a:first').css('color', 'gray');
+        $new_button.appendTo('form div:first');
     });
 })();
