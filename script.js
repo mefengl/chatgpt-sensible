@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatgpt sensible
 // @namespace    https://github.com/mefengl
-// @version      0.0.3
+// @version      0.0.4
 // @description  sensible to me
 // @author       mefengl
 // @match        https://chat.openai.com/chat
@@ -15,17 +15,14 @@
     // 0️⃣ a menu to control options
     // ...
     $(document).ready(function () {
-        // 1️⃣ drug down new chat button
-        const $new_button = $('nav a:first').css('color', 'gray');
-        $new_button.appendTo('form div:first');
-        // 2️⃣ always send message when press enter (even when generating)
+        // 1️⃣ always send message when press enter (even when generating)
         $("textarea").on("keydown", function (event) {
             if (event.key === "Enter") {
                 // click stop generation if exist
                 // re click send button
             }
         });
-        // 3️⃣ copy question when send it
+        // 2️⃣ copy question when send it
         $("textarea").on("keydown", function (event) {
             if (event.key === "Enter") {
                 navigator.clipboard.writeText($("textarea").val());
