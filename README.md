@@ -2,8 +2,7 @@
 
 ⚠️ it's still in development, publish it to collect ideas and contributions ⚠️
 
-- [ ] auto stop generation when send new message
-- [ ] add query message feature
+- [x] add query message feature
 - [x] copy my message to clipboard when send it
 
 > 📝 GitHub: [chatgpt-sensible](https://github.com/mefengl/chatgpt-sensible)
