@@ -1,4 +1,7 @@
-# chatgpt-sensible
+# chatgpt-sensible (Archive)
+
+The project has been moved to a new location:
+https://github.com/mefengl/chatgpt-playground/tree/main/apps/sensible
 
 - [x] copy my message to clipboard when send it
 
