@@ -1,9 +1,5 @@
-# chatgpt-sensible (Archive)
+# chatgpt-sensible
 
-The project has been moved to a new location:
-https://github.com/mefengl/chatgpt-playground/tree/main/apps/sensible
+This repo is maintained at [chat-playground/apps/sensible](https://github.com/mefengl/chat-playground).
 
-- [x] copy my message to clipboard when send it
-
-> 📝 GitHub: [chatgpt-sensible](https://github.com/mefengl/chatgpt-sensible)
-> 🍴 Greasy Fork: [chatgpt-sensible](https://greasyfork.org/scripts/460863)
+This repo only contains the built code for greasyfork to automatically update the script.
