@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatgpt sensible
 // @namespace    https://github.com/mefengl
-// @version      0.5.18
+// @version      0.5.19
 // @description  sensible to me
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=openai.com
 // @author       mefengl
@@ -50,28 +50,6 @@
       step((generator = generator.apply(__this, __arguments)).next());
     });
   };
-
-  // src/infoDiv/index.ts
-  function getInfoDiv() {
-    return document.querySelector("#infoDiv");
-  }
-  function getInfoDivClone() {
-    return document.querySelector("#infoDivClone");
-  }
-  function initInfoDivClone() {
-    var _a;
-    let infoDiv = getInfoDiv();
-    if (!infoDiv) {
-      infoDiv = document.querySelector("form > div > div");
-      infoDiv.id = "infoDiv";
-    }
-    let infoDivClone = getInfoDivClone();
-    if (!infoDivClone) {
-      infoDivClone = infoDiv.cloneNode(true);
-      infoDivClone.id = "infoDivClone";
-      (_a = infoDiv.parentNode) == null ? void 0 : _a.insertBefore(infoDivClone, infoDiv);
-    }
-  }
 
   // ../../packages/chatkit/dist/index.mjs
   function getTextarea() {
@@ -244,56 +222,17 @@
     });
   }
 
-  // src/sendLaterOrForceSend/index.ts
-  function sendLaterOrForceSend() {
-    let waitForSecondEnter = false;
-    onSend_default(() => __async(this, null, function* () {
-      var _a;
-      const stopGeneratingButton = chatgpt_default.getStopGeneratingButton();
-      if (!stopGeneratingButton)
-        return;
-      if (waitForSecondEnter) {
-        waitForSecondEnter = false;
-        stopGeneratingButton.click();
-        (_a = chatgpt_default.getSubmitButton()) == null ? void 0 : _a.click();
-        setTimeout(() => {
-          const infoDiv = getInfoDiv();
-          if (!infoDiv)
-            return;
-          console.log(infoDiv.innerHTML);
-          if (infoDiv.innerHTML.toLowerCase().includes("error")) {
-            const regenerateButton = chatgpt_default.getRegenerateButton();
-            if (regenerateButton)
-              regenerateButton.click();
-          }
-        }, 3e3);
-        return;
-      }
-      const infoDivClone = getInfoDivClone();
-      if (!infoDivClone)
-        return;
-      infoDivClone.innerHTML = "Press enter again in 3 seconds to send";
-      waitForSecondEnter = true;
-      setTimeout(() => {
-        waitForSecondEnter = false;
-        infoDivClone.innerHTML = "";
-      }, 3e3);
-    }));
-  }
-
   // src/index.ts
   function initialize() {
     return __async(this, null, function* () {
       yield new Promise((resolve) => window.addEventListener("load", resolve));
       yield new Promise((resolve) => setTimeout(resolve, 1e3));
-      initInfoDivClone();
     });
   }
   function main() {
     return __async(this, null, function* () {
       yield initialize();
       autoCopyWhenSend();
-      sendLaterOrForceSend();
     });
   }
   (function() {
