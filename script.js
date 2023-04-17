@@ -1,12 +1,33 @@
 // ==UserScript==
 // @name         chatgpt sensible
 // @namespace    https://github.com/mefengl
-// @version      0.5.17
+// @version      0.5.18
 // @description  sensible to me
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=openai.com
 // @author       mefengl
 // @match        https://chat.openai.com/*
-// @icon         https://www.google.com/s2/favicons?sz=64&domain=openai.com
 // @grant        none
+
+// @name:en      ChatGPT Sensible
+// @description:en Sensible to me
+// @name:zh-CN   聊天GPT明智
+// @description:zh-CN 对我来说明智
+// @name:es      ChatGPT Sensato
+// @description:es Sensato para mí
+// @name:hi      चैटजीपीटी संवेदनशील
+// @description:hi मेरे लिए संवेदनशील
+// @name:ar      ChatGPT حساس
+// @description:ar حساس بالنسبة لي
+// @name:pt      ChatGPT Sensato
+// @description:pt Sensato para mim
+// @name:ru      ChatGPT Разумный
+// @description:ru Разумно для меня
+// @name:ja      ChatGPTセンシブル
+// @description:ja 私にとって感覚的
+// @name:de      ChatGPT Sinnvoll
+// @description:de Sinnvoll für mich
+// @name:fr      ChatGPT Sensible
+// @description:fr Sensible pour moi
 // ==/UserScript==
 (() => {
   var __async = (__this, __arguments, generator) => {
@@ -62,12 +83,10 @@
     return result;
   }
   function getSubmitButton() {
-    const form = document.querySelector("form");
-    if (!form)
+    const textarea = getTextarea();
+    if (!textarea)
       return;
-    const buttons = form.querySelectorAll("button");
-    const result = buttons[buttons.length - 1];
-    return result;
+    return textarea.nextElementSibling;
   }
   function getRegenerateButton() {
     const form = document.querySelector("form");
@@ -104,7 +123,7 @@
   }
   function getTextareaValue() {
     var _a;
-    return ((_a = chatkit.getTextarea()) == null ? void 0 : _a.value) || "";
+    return ((_a = getTextarea()) == null ? void 0 : _a.value) || "";
   }
   function setTextarea(message) {
     const textarea = getTextarea();
@@ -120,17 +139,70 @@
       return;
     textarea.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
   }
+  function regenerate() {
+    const regenerateButton = getRegenerateButton();
+    if (!regenerateButton)
+      return;
+    regenerateButton.click();
+  }
+  function onSend(callback) {
+    const textarea = getTextarea();
+    if (!textarea)
+      return;
+    textarea.addEventListener("keydown", function(event) {
+      if (event.key === "Enter" && !event.shiftKey) {
+        callback();
+      }
+    });
+    const sendButton = getSubmitButton();
+    if (!sendButton)
+      return;
+    sendButton.addEventListener("mousedown", callback);
+  }
+  function isGenerating() {
+    var _a, _b;
+    return ((_b = (_a = getSubmitButton()) == null ? void 0 : _a.firstElementChild) == null ? void 0 : _b.childElementCount) === 3;
+  }
   function waitForIdle() {
     return new Promise((resolve) => {
       const interval = setInterval(() => {
-        if (!getStopGeneratingButton()) {
+        if (!isGenerating()) {
           clearInterval(interval);
           resolve();
         }
       }, 1e3);
     });
   }
-  var chatkit = {
+  function setListener(key = "prompt_texts") {
+    let last_trigger_time = +/* @__PURE__ */ new Date();
+    if (location.href.includes("chat.openai")) {
+      GM_addValueChangeListener(key, (name, old_value, new_value) => __async(this, null, function* () {
+        if (+/* @__PURE__ */ new Date() - last_trigger_time < 500) {
+          return;
+        }
+        last_trigger_time = +/* @__PURE__ */ new Date();
+        setTimeout(() => __async(this, null, function* () {
+          const prompt_texts = new_value;
+          if (prompt_texts.length > 0) {
+            let firstTime = true;
+            while (prompt_texts.length > 0) {
+              if (!firstTime) {
+                yield new Promise((resolve) => setTimeout(resolve, 2e3));
+              }
+              if (!firstTime && chatgpt.isGenerating()) {
+                continue;
+              }
+              firstTime = false;
+              const prompt_text = prompt_texts.shift() || "";
+              chatgpt.send(prompt_text);
+            }
+          }
+        }), 0);
+        GM_setValue(key, []);
+      }));
+    }
+  }
+  var chatgpt = {
     getTextarea,
     getSubmitButton,
     getRegenerateButton,
@@ -140,13 +212,17 @@
     getTextareaValue,
     setTextarea,
     send,
-    waitForIdle
+    regenerate,
+    onSend,
+    isGenerating,
+    waitForIdle,
+    setListener
   };
-  var src_default = chatkit;
+  var chatgpt_default = chatgpt;
 
   // src/onSend/index.ts
-  function onSend(callback) {
-    const textarea = src_default.getTextarea();
+  function onSend2(callback) {
+    const textarea = chatgpt_default.getTextarea();
     if (!textarea)
       return;
     textarea.addEventListener("keydown", function(event) {
@@ -154,17 +230,17 @@
         callback();
       }
     });
-    const sendButton = src_default.getSubmitButton();
+    const sendButton = chatgpt_default.getSubmitButton();
     if (!sendButton)
       return;
     sendButton.addEventListener("click", callback);
   }
-  var onSend_default = onSend;
+  var onSend_default = onSend2;
 
   // src/autoCopyWhenSend/index.ts
   function autoCopyWhenSend() {
     onSend_default(() => {
-      navigator.clipboard.writeText(src_default.getTextareaValue());
+      navigator.clipboard.writeText(chatgpt_default.getTextareaValue());
     });
   }
 
@@ -173,20 +249,20 @@
     let waitForSecondEnter = false;
     onSend_default(() => __async(this, null, function* () {
       var _a;
-      const stopGeneratingButton = src_default.getStopGeneratingButton();
+      const stopGeneratingButton = chatgpt_default.getStopGeneratingButton();
       if (!stopGeneratingButton)
         return;
       if (waitForSecondEnter) {
         waitForSecondEnter = false;
         stopGeneratingButton.click();
-        (_a = src_default.getSubmitButton()) == null ? void 0 : _a.click();
+        (_a = chatgpt_default.getSubmitButton()) == null ? void 0 : _a.click();
         setTimeout(() => {
           const infoDiv = getInfoDiv();
           if (!infoDiv)
             return;
           console.log(infoDiv.innerHTML);
           if (infoDiv.innerHTML.toLowerCase().includes("error")) {
-            const regenerateButton = src_default.getRegenerateButton();
+            const regenerateButton = chatgpt_default.getRegenerateButton();
             if (regenerateButton)
               regenerateButton.click();
           }
